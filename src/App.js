@@ -55,6 +55,18 @@ function App() {
   //storing and retrieving the applications locally using the useEffect hook
 
   useEffect(() => {
+    localStorage.setItem(LOCAL_KEY_APPLICANTS, JSON.stringify(Applicants));
+  }, [Applicants]);
+
+  useEffect(() => {
+    localStorage.setItem(LOCAL_KEY_INTERVIEWS, JSON.stringify(interviewers));
+  }, [interviewers]);
+
+  useEffect(() => {
+    localStorage.setItem(LOCAL_KEY_ACCEPTED, JSON.stringify(accepted));
+  }, [accepted]);
+
+  useEffect(() => {
     const retrieved = JSON.parse(localStorage.getItem(LOCAL_KEY_APPLICANTS));
     if (retrieved) setApplicants(retrieved);
   }, []);
@@ -69,38 +81,26 @@ function App() {
     if (retrieved) setinterviewers(retrieved);
   }, []);
 
-  useEffect(() => {
-    localStorage.setItem(LOCAL_KEY_APPLICANTS, JSON.stringify(Applicants));
-  }, [Applicants]);
-
-  useEffect(() => {
-    localStorage.setItem(LOCAL_KEY_INTERVIEWS, JSON.stringify(interviewers));
-  }, [interviewers]);
-
-  useEffect(() => {
-    localStorage.setItem(LOCAL_KEY_ACCEPTED, JSON.stringify(accepted));
-  }, [accepted]);
-
   //the button handler to change the status of the applications
   const next = (id) => {
-    const newapplicants = Applicants.map((applicant) => {
-      if (applicant.status === "submission" && applicant.id === id) {
-        applicant.status = "interview";
-        const index = Applicants.indexOf(applicant);
-        Applicants.splice(index, 1);
-        setinterviewers([...interviewers, applicant]);
+    const selectedapplicant = Applicants.find(
+      (applicant) => applicant.id === id
+    );
+    const selectedinterviewer = interviewers.find(
+      (interviewer) => interviewer.id === id
+    );
 
-        // return interviewers;
-      } else if (applicant.status === "interview" && applicant.id === id) {
-        applicant.status = "acceptance";
-        const idx = interviewers.indexOf(applicant);
-        interviewers.splice(idx, 1);
-        setaccepted([...accepted, applicant]);
-        console.log(applicant);
-        return accepted;
-      }
-      return accepted;
-    });
+    if (selectedapplicant !== undefined) {
+      selectedapplicant.status = "interview";
+      const index = Applicants.indexOf(selectedapplicant);
+      Applicants.splice(index, 1);
+      setinterviewers([...interviewers, selectedapplicant]);
+    } else if (selectedinterviewer !== undefined) {
+      selectedinterviewer.status = "acceptance";
+      const idx = interviewers.indexOf(selectedinterviewer);
+      interviewers.splice(idx, 1);
+      setaccepted([...accepted, selectedinterviewer]);
+    }
   };
 
   //remove button handler to delete the application from all the lists
